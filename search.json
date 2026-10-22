@@ -1,0 +1,4 @@
+---
+layout: null
+---
+[{% for report in site.data.reports %}{"title":{{ report.title | jsonify }},"date":{{ report.date | jsonify }},"type":{{ report.type | jsonify }},"topics":{{ report.topics | jsonify }},"tags":{{ report.tags | jsonify }},"summary":{{ report.summary | jsonify }},"body":{{ report.body | jsonify }},"url":{{ report.url | jsonify }},"demo":{{ report.demo | jsonify }}}{% unless forloop.last %},{% endunless %}{% endfor %}]

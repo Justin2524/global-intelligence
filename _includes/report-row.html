@@ -1,0 +1,5 @@
+<article class="report-row" data-report data-type="{{ report.type }}" data-topics="{{ report.topics | join: ' ' | escape }}" data-tags="{{ report.tags | jsonify | escape }}">
+  <div class="row-meta"><time datetime="{{ report.date }}">{{ report.date }}</time><span>{{ report.reading_minutes }} 分钟阅读</span></div>
+  <div><div class="labels">{% if report.demo %}<span class="demo">Demo</span>{% endif %}<span>{{ report.type | capitalize }}</span></div><h2><a href="{{ report.url | relative_url }}">{{ report.title | escape }}</a></h2><p>{{ report.summary | escape }}</p><div class="tags">{% for tag in report.tags %}<a href="{{ '/archive/' | relative_url }}?q={{ tag | url_encode }}">{{ tag | escape }}</a>{% endfor %}</div></div>
+  <a class="row-arrow" href="{{ report.url | relative_url }}" aria-label="阅读 {{ report.title | escape }}">↗</a>
+</article>

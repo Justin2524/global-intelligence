@@ -1,0 +1,29 @@
+title: Global Intelligence
+description: 全球视野，长期理解。金融、科技与世界的每日观察。
+url: "https://justin2524.github.io"
+baseurl: "/global-intelligence"
+repository: Justin2524/global-intelligence
+owner: Justin2524
+lang: zh-CN
+timezone: Asia/Hong_Kong
+markdown: kramdown
+permalink: pretty
+exclude:
+  - reports
+  - templates
+  - scripts
+  - tests
+  - node_modules
+  - package.json
+  - package-lock.json
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - MOBILE-PUBLISHING.md
+  - SECURITY.md
+  - TEST-RESULTS.md
+  - PRODUCT.md
+  - DESIGN.md
+  - artifacts
+  - vendor
+  - .vendor

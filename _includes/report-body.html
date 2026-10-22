@@ -1,0 +1,6 @@
+<div class="reading-layout">
+<aside class="toc"><details open><summary>本篇目录 <span>Contents</span></summary><ol>{% for heading in page.report.toc %}{% if heading.level == 2 or heading.level == 3 %}<li class="level-{{ heading.level }}"><a href="#{{ heading.id }}">{{ heading.title | escape }}</a></li>{% endif %}{% endfor %}</ol></details></aside>
+<div class="reading-main"><article class="prose {{ page.report.type }}">{{ page.report.html }}</article>
+<section class="source-list" aria-label="原始来源"><h2>原始来源</h2><p>查看原文，核对上下文。链接不代表本站认可其全部观点。</p><ol>{% for source in page.report.sources %}<li><a href="{{ source | escape }}" rel="noopener noreferrer">{{ source | escape }} ↗</a></li>{% endfor %}</ol></section>
+<div class="reading-end"><span>阅读完毕</span><a href="{{ '/archive/' | relative_url }}">继续探索归档 →</a></div></div>
+</div>

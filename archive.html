@@ -1,0 +1,13 @@
+---
+layout: default
+title: Archive
+section: archive
+permalink: /archive/
+---
+<header class="page-intro"><h1>Archive<span>归档与搜索</span></h1><p>按关键词、日期、报告类型与主题，找回值得重读的内容。</p></header>
+<div id="search-app" data-index="{{ '/search.json' | relative_url }}" data-base="{{ site.baseurl }}">
+<div class="search-controls"><label class="search-field">关键词<input id="search" type="search" placeholder="搜索中文、English、标签或正文…" autocomplete="off"></label><label>报告类型<select id="type-filter"><option value="">全部类型</option><option value="daily">Daily · 日报</option><option value="weekly">Weekly · 周报</option><option value="knowledge">Knowledge · 知识</option></select></label><label>专题<select id="archive-topic"><option value="">全部专题</option>{% for topic in site.data.topics %}<option value="{{ topic.id }}">{{ topic.name }}</option>{% endfor %}</select></label><label>月份<input id="month-filter" type="month"></label><button id="reset-filters" type="button">清除筛选</button></div>
+<p id="search-status" role="status" aria-live="polite">正在加载搜索索引…</p><div id="search-results"></div>
+<noscript><p>开启 JavaScript 后可使用全文搜索。下方日期归档始终可读。</p></noscript>
+</div>
+<details class="date-archive" open><summary>按日期浏览</summary>{% assign groups = site.data.reports | group_by: 'date' %}{% for group in groups %}<section><h2>{{ group.name }}</h2>{% for report in group.items %}<p><a href="{{ report.url | relative_url }}">{{ report.title | escape }}</a></p>{% endfor %}</section>{% endfor %}</details>

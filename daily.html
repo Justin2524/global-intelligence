@@ -1,0 +1,8 @@
+---
+layout: default
+title: Daily Briefings
+section: daily
+permalink: /daily/
+---
+<header class="page-intro"><h1>Daily Briefings<span>每日简报</span></h1><p>每天十条观察，连接全球金融与科技。</p></header>
+{% assign reports = site.data.reports | where: 'type', 'daily' %}{% for report in reports %}{% include report-row.html %}{% else %}<p class="empty">还没有日报。使用右上角「提交报告」开始。</p>{% endfor %}

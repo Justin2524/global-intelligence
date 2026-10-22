@@ -1,0 +1,35 @@
+name: 发布新闻报告
+description: Owner 专用 · 从手机粘贴 Markdown，自动归档并发布。
+title: "[Publish] 新闻报告"
+labels: [publish-report]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        仅仓库 Owner 可以发布。请勿粘贴隐私信息或付费全文。
+        Daily 正文需要十个编号的二级标题（## 1. 至 ## 10.）；Weekly 至少两个二级标题。
+        正文以 # 标题开头，保留来源链接。不要将整篇包裹在代码块中。
+        可在标题后写「分类：macro, technology」及「标签：AI, 宏观」。
+  - type: dropdown
+    id: report-type
+    attributes:
+      label: 报告类型 / Report type
+      options: [Daily, Weekly]
+    validations:
+      required: true
+  - type: input
+    id: report-date
+    attributes:
+      label: 报告日期 / Report date
+      placeholder: YYYY-MM-DD
+      description: 每个日期每类报告只能发布一次。
+    validations:
+      required: true
+  - type: textarea
+    id: report-body
+    attributes:
+      label: 报告正文 / Markdown
+      description: 粘贴完整 Markdown，至少包含一个 http(s) 原始来源链接。
+      placeholder: "# 报告标题"
+    validations:
+      required: true

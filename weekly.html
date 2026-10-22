@@ -1,0 +1,9 @@
+---
+layout: default
+title: Weekly Economist
+section: weekly
+permalink: /weekly/
+---
+<header class="page-intro"><h1>Weekly Economist<span>周度深读</span></h1><p>从报道出发，理解经济、技术与世界的结构性变化。</p></header>
+<p class="editorial-note">独立阅读笔记与原创分析。仅提供摘要及来源链接，不转载付费全文。</p>
+{% assign reports = site.data.reports | where: 'type', 'weekly' %}{% for report in reports %}{% include report-row.html %}{% else %}<p class="empty">还没有周报。</p>{% endfor %}

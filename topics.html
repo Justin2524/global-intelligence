@@ -1,0 +1,10 @@
+---
+layout: default
+title: Topics
+section: topics
+permalink: /topics/
+---
+<header class="page-intro"><h1>Topics<span>专题</span></h1><p>追踪一条主题线索，连接跨日期、跨领域的观察。</p></header>
+<div class="topic-directory">{% for topic in site.data.topics %}<a href="?topic={{ topic.id }}" data-topic-link="{{ topic.id }}"><h2>{{ topic.name }}</h2><span>{{ topic.english }}</span><p>{{ topic.description }}</p></a>{% endfor %}</div>
+<div class="filter-bar"><label>筛选专题<select id="topic-filter"><option value="">全部专题</option>{% for topic in site.data.topics %}<option value="{{ topic.id }}">{{ topic.name }}</option>{% endfor %}</select></label><p id="result-count" role="status"></p></div>
+<div id="topic-results">{% for report in site.data.reports %}{% include report-row.html %}{% endfor %}</div><p id="no-results" hidden>此专题暂无文章。</p>

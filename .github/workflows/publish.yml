@@ -1,0 +1,177 @@
+name: Publish Global Intelligence
+on:
+  push:
+    branches: [main]
+  issues:
+    types: [opened, edited, reopened]
+  workflow_dispatch:
+permissions: {}
+# Serializes archive + deployment. A later push builds the current main branch.
+# GitHub may replace pending runs: see MOBILE-PUBLISHING.md for recovery.
+concurrency:
+  group: global-intelligence-publish
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    outputs:
+      path: ${{ steps.ingest.outputs.path }}
+      slug: ${{ steps.ingest.outputs.slug }}
+      status: ${{ steps.ingest.outputs.status }}
+      body_sha256: ${{ steps.ingest.outputs.body_sha256 }}
+      base_sha: ${{ steps.base.outputs.sha }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          persist-credentials: false
+      - id: base
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm test
+      - name: Validate owner and ingest report
+        if: github.event_name == 'issues'
+        id: ingest
+        run: node scripts/ingest.mjs
+      - uses: ruby/setup-ruby@e1bd6146574da5e0795075b5319b300edb30c5b0 # v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+      - name: Build and verify
+        run: |
+          npm run build
+          npm run verify
+      - name: Save validated source
+        if: github.event_name == 'issues'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: report-source
+          path: ${{ steps.ingest.outputs.path }}
+          if-no-files-found: error
+          retention-days: 7
+      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: _site
+      - name: Save validation error
+        if: failure() && github.event_name == 'issues'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: validation-error
+          path: artifacts/validation-error.txt
+          if-no-files-found: ignore
+          retention-days: 7
+  archive:
+    needs: build
+    if: github.event_name == 'issues'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: report-source
+          path: artifacts/incoming
+      - name: Archive only the validated report
+        env:
+          REPORT_PATH: ${{ needs.build.outputs.path }}
+          BASE_SHA: ${{ needs.build.outputs.base_sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$BASE_SHA" || { echo 'main changed during build; rerun this workflow.'; exit 1; }
+          [[ "$REPORT_PATH" =~ ^reports/[0-9]{4}-[0-9]{2}-[0-9]{2}-(daily|weekly)\.md$ ]]
+          source_file="artifacts/incoming/$(basename "$REPORT_PATH")"
+          if test -f "$REPORT_PATH"; then
+            cmp "$source_file" "$REPORT_PATH"
+          else
+            cp -n "$source_file" "$REPORT_PATH"
+            git add -- "$REPORT_PATH"
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Archive validated news report'
+            git push origin HEAD:main
+          fi
+  deploy:
+    needs: [build, archive]
+    if: >-
+      always() && needs.build.result == 'success' &&
+      (needs.archive.result == 'success' || needs.archive.result == 'skipped')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy Pages in this workflow
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+  verify:
+    needs: [build, deploy]
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Verify public index and article
+        env:
+          SITE_URL: ${{ needs.deploy.outputs.page_url }}
+          REPORT_SLUG: ${{ needs.build.outputs.slug }}
+          BODY_SHA256: ${{ needs.build.outputs.body_sha256 }}
+        run: node scripts/verify-live.mjs
+  notify:
+    needs: [build, archive, deploy, verify]
+    if: always() && github.event_name == 'issues'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+      actions: read
+    steps:
+      - name: Download validation explanation when present
+        if: needs.build.result == 'failure'
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        continue-on-error: true
+        with:
+          name: validation-error
+          path: errors
+      - name: Report actual outcome
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        env:
+          BUILD_RESULT: ${{ needs.build.result }}
+          ARCHIVE_RESULT: ${{ needs.archive.result }}
+          DEPLOY_RESULT: ${{ needs.deploy.result }}
+          VERIFY_RESULT: ${{ needs.verify.result }}
+          SITE_URL: ${{ needs.deploy.outputs.page_url }}
+          REPORT_SLUG: ${{ needs.build.outputs.slug }}
+        with:
+          script: |
+            const fs = require('fs');
+            const success = process.env.VERIFY_RESULT === 'success' && process.env.DEPLOY_RESULT === 'success';
+            const run = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            let detail = '';
+            if (fs.existsSync('errors/validation-error.txt')) detail = fs.readFileSync('errors/validation-error.txt', 'utf8').slice(0, 1000);
+            const message = success
+              ? `发布成功：归档、Pages 部署与在线内容验证均通过。\n\n[阅读文章](${process.env.SITE_URL}reports/${process.env.REPORT_SLUG}/) · [工作流记录](${run})`
+              : `发布未完成，不能视为成功。原始 Issue 已保留。\n\n${detail}\n\n构建：${process.env.BUILD_RESULT}；归档：${process.env.ARCHIVE_RESULT}；部署：${process.env.DEPLOY_RESULT}；在线验证：${process.env.VERIFY_RESULT}。\n\n请修正格式后编辑此 Issue；若已归档但部署失败，重跑原工作流，勿改动正文或另建重复报告。\n\n[查看工作流](${run})`;
+            await github.rest.issues.createComment({...context.repo, issue_number: context.issue.number, body: message});
+            if (success) await github.rest.issues.update({...context.repo, issue_number: context.issue.number, state: 'closed', state_reason: 'completed'});

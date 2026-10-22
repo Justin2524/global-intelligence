@@ -1,0 +1,16 @@
+- id: macro
+  name: 金融宏观
+  english: Macro & economy
+  description: 理解增长、通胀、货币与全球经济的联系。
+- id: technology
+  name: AI 与科技
+  english: AI & technology
+  description: 追踪技术变革，辨别能力边界与商业影响。
+- id: markets
+  name: 金融市场
+  english: Financial markets
+  description: 从资产定价与风险出发，理解市场变化。
+- id: geopolitics
+  name: 国际政治与地缘风险
+  english: World & geopolitics
+  description: 观察制度、贸易与地缘关系的传导路径。

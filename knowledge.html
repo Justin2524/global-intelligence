@@ -1,0 +1,8 @@
+---
+layout: default
+title: Knowledge Base
+section: knowledge
+permalink: /knowledge/
+---
+<header class="page-intro"><h1>Knowledge Base<span>知识库</span></h1><p>用可复用的概念，读懂不断变化的新闻。</p></header>
+{% assign reports = site.data.reports | where: 'type', 'knowledge' %}{% for report in reports %}{% include report-row.html %}{% endfor %}

@@ -1,0 +1,9 @@
+{% assign report = page.report %}
+<header class="article-header">
+<div class="breadcrumb"><a href="{{ '/' | relative_url }}">首页</a><span>/</span><a href="{{ '/archive/' | relative_url }}">报告归档</a></div>
+<div class="labels"><span>{{ report.type | capitalize }}</span>{% if report.demo %}<span class="demo">Demo · 演示内容，非真实新闻</span>{% endif %}</div>
+<h1>{{ report.title | escape }}</h1>
+<p class="article-summary">{{ report.summary | escape }}</p>
+<div class="article-meta"><time datetime="{{ report.date }}">{{ report.date }}</time><span>{{ report.reading_minutes }} 分钟阅读</span>{% if report.source_issue %}<a href="{{ report.source_issue | escape }}">原始投稿 ↗</a>{% endif %}</div>
+<div class="tags">{% for topic in report.topics %}{% for category in site.data.topics %}{% if topic == category.id %}<a href="{{ '/topics/' | relative_url }}?topic={{ topic }}">{{ category.name }}</a>{% endif %}{% endfor %}{% endfor %}{% for tag in report.tags %}<a href="{{ '/archive/' | relative_url }}?q={{ tag | url_encode }}">{{ tag | escape }}</a>{% endfor %}</div>
+</header>
