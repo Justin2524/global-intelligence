@@ -5,5 +5,6 @@
 <h1>{{ report.title | escape }}</h1>
 <p class="article-summary">{{ report.summary | escape }}</p>
 <div class="article-meta"><time datetime="{{ report.date }}">{{ report.date }}</time><span>{{ report.reading_minutes }} 分钟阅读</span>{% if report.source_issue %}<a href="{{ report.source_issue | escape }}">原始投稿 ↗</a>{% endif %}</div>
+{% if report.demo_original_date %}<p class="demo-archive-note">Demo 验收于 {{ report.demo_original_date }} 完成；2000-01-01 为示例归档日期，不代表真实新闻日期。</p>{% endif %}
 <div class="tags">{% for topic in report.topics %}{% for category in site.data.topics %}{% if topic == category.id %}<a href="{{ '/topics/' | relative_url }}?topic={{ topic }}">{{ category.name }}</a>{% endif %}{% endfor %}{% endfor %}{% for tag in report.tags %}<a href="{{ '/archive/' | relative_url }}?q={{ tag | url_encode }}">{{ tag | escape }}</a>{% endfor %}</div>
 </header>

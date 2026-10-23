@@ -7,13 +7,15 @@
 - 手机投稿：https://github.com/Justin2524/global-intelligence/issues/new?template=publish-report.yml
 - [手机操作说明](MOBILE-PUBLISHING.md) · [安全边界](SECURITY.md) · [验收记录](TEST-RESULTS.md)
 
-以上是配置的目标地址；实际发布状态以验收记录及 Actions 的成功结果为准。
+网站已实际发布，Daily / Weekly 投稿端到端测试通过。详细证据与真实设备限制见验收记录。
 
 ## 网站功能
 
 首页展示最新日报、最新周报与专题；Daily Briefings、Weekly Economist 使用相同数据结构与不同阅读布局。Topics 支持四类专题筛选，Knowledge Base 收录长期知识，Archive 提供日期归档及中文、英文、正文、标签全文搜索。搜索条件可组合，保存在 URL 中。
 
 支持 Markdown 标题、列表、引用、表格、代码块、来源链接和公式。文章目录自动生成；移动端目录默认折叠，导航可横向滚动。无外部字体、跟踪脚本、数据库或付费 API。公式在构建时转换为原生 MathML，不依赖浏览器端 CDN。
+
+端到端验收产生的两篇 Demo 在完成在线验证后移至 `2000-01-01` 示例归档日期，保留原投稿 Issue 和验收日期，不占用今天的正式投稿位置。原始工作流评论中的测试日期链接是历史证据；当前示例请从归档打开。
 
 种子数据均明确标记 **Demo**，不代表真实新闻、行情或真实一期《经济学人》报道。Weekly 仅存放原创摘要、分析及原文链接，不公开转载付费全文。
 
